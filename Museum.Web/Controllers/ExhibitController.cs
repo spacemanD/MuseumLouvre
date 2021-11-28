@@ -2,7 +2,6 @@
 using DAL.EF.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -61,15 +60,15 @@ namespace Museum.Web.Controllers
             return View(product);
         }
 
-        public async Task<IActionResult> SortByPrice()
+        public IActionResult SortByPrice()
         {
-            var appDbContext = await Task.Run(() => _service.GetAllListAsync().Result.ToList().OrderBy(x => x.CreationYear));
+            var appDbContext =  _service.GetAllListAsync().Result.ToList().OrderBy(x => x.CreationYear);
             return View("Index", appDbContext);
         }
 
-        public async Task<IActionResult> SortByPriceDesc()
+        public  IActionResult SortByPriceDesc()
         {
-            var appDbContext = await Task.Run(() => _service.GetAllListAsync().Result.ToList().OrderByDescending(x => x.CreationYear));
+            var appDbContext =  _service.GetAllListAsync().Result.ToList().OrderByDescending(x => x.CreationYear);
             return View("Index", appDbContext);
         }
 
@@ -80,7 +79,7 @@ namespace Museum.Web.Controllers
                 return NotFound();
             }
 
-            var product = await Task.Run(() => _service.GetAllListAsync().Result.ToList().FirstOrDefault(x => x.ExhibitId == id));
+            var product = _service.GetAllListAsync().Result.ToList().FirstOrDefault(x => x.ExhibitId == id);
             if (product == null)
             {
                 return NotFound();
@@ -101,7 +100,7 @@ namespace Museum.Web.Controllers
             {
                 try
                 {
-                    await Task.Run(() => _service.UpdateAsync(product));
+                    _service.UpdateAsync(product);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -132,7 +131,7 @@ namespace Museum.Web.Controllers
                 return NotFound();
             }
 
-            var product = await Task.Run(() => _service.GetAllListAsync().Result.ToList().FirstOrDefault(x => x.ExhibitId == id));
+            var product = _service.GetAllListAsync().Result.ToList().FirstOrDefault(x => x.ExhibitId == id);
 
             if (product == null)
             {
@@ -145,7 +144,7 @@ namespace Museum.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var product = await Task.Run(() => _service.GetAllListAsync().Result.ToList().FirstOrDefault(x => x.ExhibitId == id));
+            var product = _service.GetAllListAsync().Result.ToList().FirstOrDefault(x => x.ExhibitId == id);
             _service.DeleteAsync(product);
             return RedirectToAction(nameof(Index));
         }
