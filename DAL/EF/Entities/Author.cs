@@ -20,8 +20,6 @@ namespace DAL.EF.Entities
 
         public CountryList? Country { get; set; }
 
-        public int CountryId { get; set; }
-
-        public virtual ICollection<Exhibit> Pictures { get; set; }
+        public virtual ICollection<Exhibit> Exhibits { get; set; }
     }
 }

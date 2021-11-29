@@ -2,6 +2,8 @@
 using DAL;
 using DAL.EF.Entities;
 using DAL.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,9 +24,12 @@ namespace BLL.Services
             _repos = repository;
             _context = context;
         }
-        public async Task<IEnumerable<Exhibit>> GetAllListAsync()
+        public IEnumerable<Exhibit> GetAllListAsync()
         {
-            var list = await _repos.GetRangeAsync<Exhibit>(false, x => x != null);
+            var list =  _repos.GetRangeAsync<Exhibit>(false, x => x != null,
+                include: source => source
+                .Include(a => a.Collection)
+                .Include(a => a.Author)).Result.ToList();
             if (list != null)
             {
                 _logger.LogInformation("Successfully retrieved from DB");
@@ -36,34 +41,34 @@ namespace BLL.Services
             return list;
         }
 
-        public async Task<Exhibit> AddAsync(Exhibit exemplar)
+        public Task<Exhibit> AddAsync(Exhibit exemplar)
         {
-            return await Task.Run(() => _repos.AddAsync(exemplar));
+            return  _repos.AddAsync(exemplar);
         }
 
-        public async Task AddRangeAsync(IEnumerable<Exhibit> range)
+        public Task AddRangeAsync(IEnumerable<Exhibit> range)
         {
-            await Task.Run(() => _repos.AddRangeAsync(range));
+            return  _repos.AddRangeAsync(range);
         }
 
-        public void DeleteRangeAsync(IEnumerable<Exhibit> range)
+        public Task DeleteRangeAsync(IEnumerable<Exhibit> range)
         {
-            _repos.DeleteRangeAsync(range);
+            return _repos.DeleteRangeAsync(range);
         }
 
-        public void DeleteAsync(Exhibit exemplar)
+        public Task DeleteAsync(Exhibit exemplar)
         {
-            _repos.DeleteAsync(exemplar);
+            return _repos.DeleteAsync(exemplar);
         }
 
-        public void UpdateAsync(Exhibit exemplar)
+        public Task UpdateAsync(Exhibit exemplar)
         {
-            _repos.UpdateAsync(exemplar);
+            return _repos.UpdateAsync(exemplar);
         }
 
-        public void UpdateRangeAsync(IEnumerable<Exhibit> range)
+        public Task UpdateRangeAsync(IEnumerable<Exhibit> range)
         {
-            _repos.UpdateRangeAsync(range);
+            return _repos.UpdateRangeAsync(range);
         }
 
         public ICollection<PopExhibit> GetTop10PopularExhibits()
@@ -88,7 +93,7 @@ namespace BLL.Services
         {
             using (_context)
             {
-                var statExhibit = _context.PopExhibits.FirstOrDefault(x => x.ExhibitId == exhibitId);
+                var statExhibit = _context.PopExhibits.FirstOrDefault(x => x.Exhibit.ExhibitId == exhibitId);
                 var exhibit = _context.Exhibits.FirstOrDefault(x => x.ExhibitId == exhibitId);
                 if (statExhibit != default || statExhibit != null)
                 {
@@ -98,7 +103,7 @@ namespace BLL.Services
                 }
                 else if (exhibit != default || exhibit != null)
                 {
-                    var newExhibit = new PopExhibit() { Exhibit = exhibit, ExhibitId = exhibit.ExhibitId, Rate = 1 };
+                    var newExhibit = new PopExhibit() { Exhibit = exhibit, Rate = 1 };
                     _context.PopExhibits.Add(newExhibit);
                     _context.SaveChanges();
                 }

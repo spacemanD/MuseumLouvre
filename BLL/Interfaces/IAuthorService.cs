@@ -6,19 +6,19 @@ namespace BLL.Interfaces
 {
     public interface IAuthorService
     {
-        public Task<IEnumerable<Author>> GetAllListAsync();
+        public IEnumerable<Author> GetAllListAsync();
 
         public Task<Author> AddAsync(Author exemplar);
 
         public Task AddRangeAsync(IEnumerable<Author> range);
 
-        public void DeleteRangeAsync(IEnumerable<Author> range);
+        public Task DeleteRangeAsync(IEnumerable<Author> range);
 
-        public void DeleteAsync(Author exemplar);
+        public Task DeleteAsync(Author exemplar);
 
-        public void UpdateAsync(Author exemplar);
+        public Task UpdateAsync(Author exemplar);
 
-        public void UpdateRangeAsync(IEnumerable<Author> range);
+        public Task UpdateRangeAsync(IEnumerable<Author> range);
 
         public ICollection<PopAuthor> GetTop10PopularAuthors();
 

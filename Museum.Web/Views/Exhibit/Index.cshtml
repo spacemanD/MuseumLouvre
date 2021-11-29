@@ -4,33 +4,57 @@
     ViewData["Title"] = "Products";
 }
 
+
 <h1>Products</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
-    <a asp-action="SortByPrice">PriceUp</a>
-    <a asp-action="SortByPriceDesc">PriceDown</a>
+    @Html.ActionLink("Create New", "Create")
+</p>
+
+@using (Html.BeginForm())
+{
+    <p>
+        Find by name: @Html.TextBox("SearchString")
+        <input type="submit" value="Search" />
+    </p>
+    <p>
+        @Html.DropDownList("Category", (SelectList)ViewBag.Country, "All", new { @class = "form-control" })
+        <input type="submit" value="Filter" />
+    </p>
+}
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Name)
+                @Html.ActionLink("Name", "Index", new { sortOrder = ViewBag.NameSortParm })
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.)
+                @Html.DisplayNameFor(model => model.Author)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Picture)
+                @Html.DisplayNameFor(model => model.Collection)
+            </th>
+            <th>
+                @Html.ActionLink("CreatedYear", "Index", new { sortOrder = ViewBag.DateSortParm })
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Type)
-            </th>
             <th>
-                @Html.DisplayNameFor(model => model.Issue)
-            </th>
             <th>
-                @Html.DisplayNameFor(model => model.Quantity)
+                @Html.DisplayNameFor(model => model.Cost)
+            <th>
+            <th>
+                @Html.DisplayNameFor(model => model.Direction)
+            <th>
+            <th>
+                @Html.DisplayNameFor(model => model.Materials)
+            <th>
+            <th>
+                @Html.DisplayNameFor(model => model.Country)
             <th>
             <th></th>
         </tr>
@@ -38,30 +62,41 @@
     <tbody>
         @foreach (var item in Model)
         {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Picture)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Type)
-            </td>
-            <th>
-                @Html.DisplayNameFor(model => model.Issue)
-            </th>
-            <td>
-                @Html.DisplayFor(modelItem => item.Quantity)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> |
-                <a asp-action="Buy" asp-route-id="@item.Id">Buy</a> 
-</tr>
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <th>
+                    @Html.DisplayFor(modelItem => item.Author.Name)
+                </th>
+                <th>
+                    @Html.DisplayFor(modelItem => item.Collection)
+                </th>
+                <th>
+                    @Html.DisplayFor(modelItem => item.CreationYear)
+                </th>
+                <th>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </th>
+                <th>
+                    @Html.DisplayFor(modelItem => item.Type)
+                <th>
+                <th>
+                    @Html.DisplayFor(modelItem => item.Cost)
+                <th>
+                <th>
+                    @Html.DisplayFor(modelItem => item.Direction)
+                <th>
+                <th>
+                    @Html.DisplayFor(modelItem => item.Materials)
+                <th>
+                <th>
+                    @Html.DisplayFor(modelItem => item.Country)
+                <th>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ExhibitId">Edit</a>|
+                    <a asp-action="Details" asp-route-id="@item.ExhibitId">Details</a>|
+                    <a asp-action="Delete" asp-route-id="@item.ExhibitId">Delete</a>
+            </tr>
         }
 </table>

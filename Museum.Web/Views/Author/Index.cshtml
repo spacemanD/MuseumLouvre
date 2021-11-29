@@ -1,0 +1,78 @@
+﻿@model IEnumerable<DAL.EF.Entities.Author>
+
+@{
+    ViewData["Title"] = "Authors";
+}
+
+
+<h1>Authors</h1>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+
+@using (Html.BeginForm())
+{
+    <p>
+        Find by name: @Html.TextBox("SearchString")
+        <input type="submit" value="Search" />
+    </p>
+    <p>
+        @Html.DropDownList("Category", (SelectList)ViewBag.Country, "All", new { @class = "form-control" })
+        <input type="submit" value="Filter" />
+    </p>
+}
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.ActionLink("Name", "Index", new { sortOrder = ViewBag.NameSortParm })
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Surname)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MiddleName)
+            </th>
+            <th>
+                @Html.ActionLink("BirthDate", "Index", new { sortOrder = ViewBag.DateSortParm })
+            </th>
+            <th>
+                @Html.ActionLink("DeathDate", "Index", new { sortOrder = ViewBag.DateSortParm })
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Country)
+            <th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <th>
+                    @Html.DisplayFor(modelItem => item.Surname)
+                </th>
+                <th>
+                    @Html.DisplayFor(modelItem => item.MiddleName)
+                </th>
+                <th>
+                    @Html.DisplayFor(modelItem => item.BirthDate)
+                </th>
+                <th>
+                    @Html.DisplayFor(modelItem => item.DeathDate)
+                </th>
+                <th>
+                    @Html.DisplayFor(modelItem => item.Country)
+                <th>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.AuthorId">Edit</a>|
+                    <a asp-action="Details" asp-route-id="@item.AuthorId">Details</a>|
+                    <a asp-action="Delete" asp-route-id="@item.AuthorId">Delete</a>
+            </tr>
+        }
+</table>

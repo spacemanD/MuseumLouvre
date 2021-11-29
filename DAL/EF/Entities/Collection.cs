@@ -15,8 +15,6 @@ namespace DAL.EF.Entities
 
         public DateTime? EndTime { get; set; }
 
-        public int? UserId { get; set; }
-
         public List<Exhibit> Exhibits { get; set; }
     }
 }

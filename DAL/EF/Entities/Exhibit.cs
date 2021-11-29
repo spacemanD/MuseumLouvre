@@ -11,13 +11,10 @@ namespace DAL.EF.Entities
         public int? CreationYear { get; set; }
         public string Description { get; set; }
         public ExhibitType Type { get; set; }
-        public int TypeId { get; set; }
         public long? Cost { get; set; }
         public ArtDirection? Direction { get; set; }
-        public int? DirectionId { get; set; }
         public string Materials { get; set; }
         public CountryList? Country { get; set; }
-        public int? CountryId { get; set; }
         public Author Author { get; set; }
         public Collection Collection { get; set; }
     }

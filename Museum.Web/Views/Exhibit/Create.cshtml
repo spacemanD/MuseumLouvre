@@ -18,12 +18,14 @@
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Author.Name" class="control-label"></label>
-                <input asp-for="Author.Name" class="form-control" />
-                <span asp-validation-for="Author.Name" class="text-danger"></span>
+                <label asp-for="Author" class="control-label"></label>
+                <select asp-for="AuthorId" class="form-control" asp-items="ViewBag.AuthorId">
+                    <option value="">-- Select Author --</option>
+                </select>
+                <span asp-validation-for="AuthorId" class="text-danger" />
             </div>
             <div class="form-group">
-                <label asp-for="Collection.Name" class="control-label"></label>
+                <label asp-for="Collection" class="control-label"></label>
                 <input asp-for="Collection.Name" class="form-control" />
                 <span asp-validation-for="Collection.Name" class="text-danger"></span>
             </div>
@@ -48,14 +50,14 @@
                 <span asp-validation-for="Materials" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Type" class="control-label"></label>
-                <select asp-for="Type" asp-items="Html.GetEnumSelectList<DAL.EF.Entities.Enums.ArtDirection>()"></select>
-                <span asp-validation-for="Type" class="text-danger"></span>
+                <label asp-for="Direction" class="control-label"></label>
+                <select asp-for="Direction" asp-items="Html.GetEnumSelectList<DAL.EF.Entities.Enums.ArtDirection>()"></select>
+                <span asp-validation-for="Direction" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Type" class="control-label"></label>
-                <select asp-for="Type" asp-items="Html.GetEnumSelectList<DAL.EF.Entities.Enums.CountryList>()"></select>
-                <span asp-validation-for="Type" class="text-danger"></span>
+                <label asp-for="Country" class="control-label"></label>
+                <select asp-for="Country" asp-items="Html.GetEnumSelectList<DAL.EF.Entities.Enums.CountryList>()"></select>
+                <span asp-validation-for="Country" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Type" class="control-label"></label>
