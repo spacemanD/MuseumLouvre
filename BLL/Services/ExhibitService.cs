@@ -73,20 +73,21 @@ namespace BLL.Services
 
         public ICollection<PopExhibit> GetTop10PopularExhibits()
         {
-            using (_context)
-            {
-                var users = _context.PopExhibits.OrderBy(x => x.Rate).Take(10).ToList();
-                return users;
-            }
+            var exhibits = _repos.GetRangeAsync<PopExhibit>(false, x => x != null,
+            include: source => source
+            .Include(a => a.Exhibit)
+            .ThenInclude(z => z.Author)).Result.OrderBy(x => x.Rate).Take(10).ToList();
+            return exhibits;
         }
 
         public ICollection<PopExhibit> GetLast10PopularExhibits()
         {
-            using (_context)
-            {
-                var users = _context.PopExhibits.OrderByDescending(x => x.Rate).Take(10).ToList();
-                return users;
-            }
+            var exhibits = _repos.GetRangeAsync<PopExhibit>(false, x => x != null,
+            include: source => source
+            .Include(a => a.Exhibit)
+            .ThenInclude(z => z.Author)).Result.OrderByDescending(x => x.Rate).Take(10).ToList();
+            return exhibits;
+
         }
 
         public void UpdateStatistics(int exhibitId)

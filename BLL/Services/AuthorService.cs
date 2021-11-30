@@ -75,20 +75,22 @@ namespace BLL.Services
 
         public ICollection<PopAuthor> GetTop10PopularAuthors()
         {
-            using (_context)
-            {
-                var users = _context.PopAuthors.OrderBy(x => x.Rate).Take(10).ToList();
-                return users;
-            }
+            var users = _repos.GetRangeAsync<PopAuthor>(false, x => x != null,
+            include: source => source
+            .Include(a => a.Author)
+            .ThenInclude(z => z.Exhibits)).Result.OrderBy(x => x.Rate).Take(10).ToList();
+            return users;
         }
 
         public ICollection<PopAuthor> GetLast10PopularAuthors()
         {
-            using (_context)
-            {
-                var users = _context.PopAuthors.OrderByDescending(x => x.Rate).Take(10).ToList();
+
+            var users = _repos.GetRangeAsync<PopAuthor>(false, x => x != null,
+            include: source => source
+            .Include(a => a.Author)
+            .ThenInclude(z => z.Exhibits)).Result.OrderByDescending(x => x.Rate).Take(10).ToList();
                 return users;
-            }
+            
         }
 
         public void UpdateStatistics(int authorId)

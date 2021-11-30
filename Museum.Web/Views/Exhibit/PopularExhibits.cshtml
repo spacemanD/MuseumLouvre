@@ -1,0 +1,69 @@
+﻿@model IEnumerable<DAL.EF.Entities.PopExhibit>
+
+@{
+    ViewData["Title"] = "PopularExhibits";
+}
+
+<h1>PopularExhibits</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ExhibitId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Rate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Exhibit.Author)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Exhibit.Cost)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Exhibit.Country)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Exhibit.CreationYear)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Exhibit.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Exhibit.Direction)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ExhibitId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Rate)
+            </td>
+            <th>
+                @Html.DisplayFor(modelItem => item.Exhibit.Author.Name)
+            </th>
+            <th>
+                @Html.DisplayFor(modelItem => item.Exhibit.Cost)
+            </th>
+            <th>
+                @Html.DisplayFor(modelItem => item.Exhibit.Country)
+            </th>
+            <th>
+                @Html.DisplayFor(modelItem => item.Exhibit.CreationYear)
+            </th>
+            <th>
+                @Html.DisplayFor(modelItem => item.Exhibit.Description)
+            </th>
+            <th>
+                @Html.DisplayFor(modelItem => item.Exhibit.Direction)
+            </th>
+        </tr>
+}
+    </tbody>
+</table>

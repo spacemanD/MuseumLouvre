@@ -26,9 +26,13 @@ namespace Museum.Web.Controllers
             _service = authorService;
             _serviceExhib = exhibit;
         }
-
-        // GET: Products
-        public async Task<IActionResult> Index(string sortOrder, string searchString, string category)
+        public IActionResult PopularAuthors()
+        {
+           var authors = _service.GetLast10PopularAuthors();
+            return View(authors);
+        }
+            // GET: Products
+            public async Task<IActionResult> Index(string sortOrder, string searchString, string category)
         {
             ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "name_asc";
             ViewBag.DateSortParm = sortOrder == "Date" ? "date_desc" : "Date";

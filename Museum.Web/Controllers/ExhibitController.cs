@@ -23,6 +23,11 @@ namespace Museum.Web.Controllers
             _serviceAuth = authorService;
         }
 
+        public IActionResult PopularExhibits()
+        {
+            var authors = _service.GetLast10PopularExhibits();
+            return View(authors);
+        }
         // GET: Products
         public async Task<IActionResult> Index(string sortOrder, string searchString, string category)
         {
