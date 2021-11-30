@@ -78,7 +78,7 @@ namespace BLL.Services
             var users = _repos.GetRangeAsync<PopAuthor>(false, x => x != null,
             include: source => source
             .Include(a => a.Author)
-            .ThenInclude(z => z.Exhibits)).Result.OrderBy(x => x.Rate).Take(10).ToList();
+            .ThenInclude(z => z.Exhibits)).Result.OrderByDescending(x => x.Rate).Take(10).ToList();
             return users;
         }
 
@@ -88,7 +88,7 @@ namespace BLL.Services
             var users = _repos.GetRangeAsync<PopAuthor>(false, x => x != null,
             include: source => source
             .Include(a => a.Author)
-            .ThenInclude(z => z.Exhibits)).Result.OrderByDescending(x => x.Rate).Take(10).ToList();
+            .ThenInclude(z => z.Exhibits)).Result.OrderBy(x => x.Rate).Take(10).ToList();
                 return users;
             
         }

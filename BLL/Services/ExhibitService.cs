@@ -76,7 +76,7 @@ namespace BLL.Services
             var exhibits = _repos.GetRangeAsync<PopExhibit>(false, x => x != null,
             include: source => source
             .Include(a => a.Exhibit)
-            .ThenInclude(z => z.Author)).Result.OrderBy(x => x.Rate).Take(10).ToList();
+            .ThenInclude(z => z.Author)).Result.OrderByDescending(x => x.Rate).Take(10).ToList();
             return exhibits;
         }
 
@@ -85,7 +85,7 @@ namespace BLL.Services
             var exhibits = _repos.GetRangeAsync<PopExhibit>(false, x => x != null,
             include: source => source
             .Include(a => a.Exhibit)
-            .ThenInclude(z => z.Author)).Result.OrderByDescending(x => x.Rate).Take(10).ToList();
+            .ThenInclude(z => z.Author)).Result.OrderBy(x => x.Rate).Take(10).ToList();
             return exhibits;
 
         }

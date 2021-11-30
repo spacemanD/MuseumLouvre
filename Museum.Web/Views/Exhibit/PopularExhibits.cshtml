@@ -5,7 +5,13 @@
 }
 
 <h1>PopularExhibits</h1>
-
+@using (Html.BeginForm())
+{
+    <p>
+        @Html.DropDownList("Category", (SelectList)ViewBag.Country, "All", new { @class = "form-control" })
+        <input type="submit" value="Filter" />
+    </p>
+}
 <table class="table">
     <thead>
         <tr>
@@ -13,7 +19,7 @@
                 @Html.DisplayNameFor(model => model.ExhibitId)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Rate)
+                @Html.ActionLink("Rate", "PopularExhibits", new { sortOrder = ViewBag.RateSortParm })
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Exhibit.Author)
@@ -37,33 +43,34 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.ExhibitId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Rate)
-            </td>
-            <th>
-                @Html.DisplayFor(modelItem => item.Exhibit.Author.Name)
-            </th>
-            <th>
-                @Html.DisplayFor(modelItem => item.Exhibit.Cost)
-            </th>
-            <th>
-                @Html.DisplayFor(modelItem => item.Exhibit.Country)
-            </th>
-            <th>
-                @Html.DisplayFor(modelItem => item.Exhibit.CreationYear)
-            </th>
-            <th>
-                @Html.DisplayFor(modelItem => item.Exhibit.Description)
-            </th>
-            <th>
-                @Html.DisplayFor(modelItem => item.Exhibit.Direction)
-            </th>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ExhibitId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Rate)
+                </td>
+                <th>
+                    @Html.DisplayFor(modelItem => item.Exhibit.Author.Name)
+                </th>
+                <th>
+                    @Html.DisplayFor(modelItem => item.Exhibit.Cost)
+                </th>
+                <th>
+                    @Html.DisplayFor(modelItem => item.Exhibit.Country)
+                </th>
+                <th>
+                    @Html.DisplayFor(modelItem => item.Exhibit.CreationYear)
+                </th>
+                <th>
+                    @Html.DisplayFor(modelItem => item.Exhibit.Description)
+                </th>
+                <th>
+                    @Html.DisplayFor(modelItem => item.Exhibit.Direction)
+                </th>
+            </tr>
+        }
     </tbody>
 </table>

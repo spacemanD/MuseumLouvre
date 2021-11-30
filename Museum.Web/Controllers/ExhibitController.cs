@@ -23,9 +23,32 @@ namespace Museum.Web.Controllers
             _serviceAuth = authorService;
         }
 
-        public IActionResult PopularExhibits()
+        public IActionResult PopularExhibits(string sortOrder ,string category)
         {
-            var authors = _service.GetLast10PopularExhibits();
+            ViewBag.CurrentFilter = category;
+            ViewBag.RateSortParm = String.IsNullOrEmpty(sortOrder) ? "rate_desc" : "";
+
+
+            var categoryQuery = Enum.GetValues(typeof(CountryList)).Cast<CountryList>();
+
+            var authors = new List<PopExhibit>();
+            ViewBag.Category = new SelectList(categoryQuery);
+
+            switch (sortOrder)
+            {
+                case "rate_desc":
+                    authors = _service.GetLast10PopularExhibits().ToList();
+                    break;
+                default:
+                    authors = _service.GetTop10PopularExhibits().ToList();
+                    break;
+            }
+
+            if (category != null)
+            {
+                authors = authors.Where(i => i.Exhibit.Country.ToString() == category).ToList();
+            }
+
             return View(authors);
         }
         // GET: Products

@@ -7,8 +7,12 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Xceed.Document.NET;
+using Xceed.Words.NET;
 
 namespace Museum.Web.Controllers
 {
@@ -20,21 +24,47 @@ namespace Museum.Web.Controllers
 
         private readonly IExhibitService _serviceExhib;
 
+        private List<PopAuthor> popAuthors;
+
 
         public AuthorController(IAuthorService authorService, IExhibitService exhibit)
         {
             _service = authorService;
             _serviceExhib = exhibit;
         }
-        public IActionResult PopularAuthors()
+        public IActionResult PopularAuthors(string sortOrder, string category)
         {
-           var authors = _service.GetLast10PopularAuthors();
+            ViewBag.CurrentFilter = category;
+            ViewBag.RateSortParm = String.IsNullOrEmpty(sortOrder) ? "rate_desc" : "";
+
+
+            var categoryQuery = Enum.GetValues(typeof(CountryList)).Cast<CountryList>();
+
+            var authors = new List<PopAuthor>();
+            ViewBag.Category = new SelectList(categoryQuery);
+
+            switch (sortOrder)
+            {
+                case "rate_desc":
+                    authors = _service.GetLast10PopularAuthors().ToList();
+                    break;
+                default:
+                    authors = _service.GetTop10PopularAuthors().ToList();
+                    break;
+            }
+
+            if (category != null)
+            {
+                authors = authors.Where(i => i.Author.Country.ToString() == category).ToList();
+            }
+
+            popAuthors = authors;
             return View(authors);
         }
             // GET: Products
             public async Task<IActionResult> Index(string sortOrder, string searchString, string category)
         {
-            ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "name_asc";
+            ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             ViewBag.DateSortParm = sortOrder == "Date" ? "date_desc" : "Date";
             ViewBag.CategorySortParm = sortOrder == "category" ? "category_desc" : "category";
 
@@ -215,6 +245,19 @@ namespace Museum.Web.Controllers
             await _service.DeleteAsync(product);
             await _serviceExhib.DeleteRangeAsync(authExhibits);
             return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Generar(Documento documento)
+        {
+            MemoryStream stream = new MemoryStream();
+            DocX doc = DocX.Create(stream);
+
+            Paragraph par = doc.InsertParagraph();
+            par.Append("This is a dummy test").Font(new FontFamily("Times New Roman")).FontSize(32).Color(Color.Blue).Bold();
+
+            doc.Save();
+
+            return File(stream.ToArray(), "application/octet-stream", "FileName.docx");
         }
 
         private bool ExhibitExists(int id)
