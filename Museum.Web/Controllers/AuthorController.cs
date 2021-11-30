@@ -5,14 +5,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using SelectPdf;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Xceed.Document.NET;
-using Xceed.Words.NET;
 
 namespace Museum.Web.Controllers
 {
@@ -143,6 +142,35 @@ namespace Museum.Web.Controllers
             return View();
         }
 
+        public IActionResult CreatePDF()
+        {
+            if (startConversion)
+            {
+                // get html of the page
+                TextWriter myWriter = new StringWriter();
+                HtmlTextWriter htmlWriter = new HtmlTextWriter(myWriter);
+                base.Render(htmlWriter);
+
+                // instantiate a html to pdf converter object
+                HtmlToPdf converter = new HtmlToPdf();
+
+                // create a new pdf document converting the html string of the page
+                PdfDocument doc = converter.ConvertHtmlString(
+                    myWriter.ToString(), Url);
+
+                // save pdf document
+                doc.Save(Response, false, "Sample.pdf");
+
+                // close pdf document
+                doc.Close();
+            }
+            else
+            {
+                // render web page in browser
+                base.Render(writer);
+            }
+        }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -245,19 +273,6 @@ namespace Museum.Web.Controllers
             await _service.DeleteAsync(product);
             await _serviceExhib.DeleteRangeAsync(authExhibits);
             return RedirectToAction(nameof(Index));
-        }
-
-        public IActionResult Generar(Documento documento)
-        {
-            MemoryStream stream = new MemoryStream();
-            DocX doc = DocX.Create(stream);
-
-            Paragraph par = doc.InsertParagraph();
-            par.Append("This is a dummy test").Font(new FontFamily("Times New Roman")).FontSize(32).Color(Color.Blue).Bold();
-
-            doc.Save();
-
-            return File(stream.ToArray(), "application/octet-stream", "FileName.docx");
         }
 
         private bool ExhibitExists(int id)

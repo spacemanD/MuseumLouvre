@@ -12,7 +12,7 @@ namespace DAL.EF.Entities
         public string Description { get; set; }
         public ExhibitType Type { get; set; }
         public long? Cost { get; set; }
-        public ArtDirection? Direction { get; set; }
+        public Enums.ArtDirection? Direction { get; set; }
         public string Materials { get; set; }
         public CountryList? Country { get; set; }
         public Author Author { get; set; }

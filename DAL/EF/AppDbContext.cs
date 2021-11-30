@@ -20,8 +20,13 @@ namespace DAL
 
         public DbSet<PopAuthor> PopAuthors { get; set; }
 
+        public DbSet<Country> Countries { get; set; }
+
+        public DbSet<Exhibit_Type> ExhibitTypes { get; set; }
+
         public DbSet<PopExhibit> PopExhibits { get; set; }
 
+        public DbSet<ArtDirections> ArtDirections { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
