@@ -33,6 +33,7 @@ namespace BLL.Services
                 include: source => source
                 .Include(a => a.Collection)
                 .Include(a => a.Author)).Result.ToList();
+
             if (list != null)
             {
                 _logger.LogInformation("Successfully retrieved from DB");

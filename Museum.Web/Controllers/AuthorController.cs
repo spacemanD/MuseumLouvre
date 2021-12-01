@@ -303,7 +303,8 @@ namespace Museum.Web.Controllers
         {
             var product = _service.GetAllListAsync().ToList().FirstOrDefault(x => x.AuthorId == id);
             var authExhibits = _serviceExhib.GetAllListAsync().Where(x => x?.AuthorId == id || x?.Author?.AuthorId == id);
-            await _serviceExhib.DeleteRangeAsync(authExhibits);
+            authExhibits.All(c => { c.AuthorId = null; return true; });
+            await _serviceExhib.UpdateRangeAsync(authExhibits);
             await _service.DeleteAsync(product);
             return RedirectToAction(nameof(Index));
         }

@@ -128,9 +128,9 @@ namespace Museum.Web.Controllers
             return View(exhibit);
         }
 
-        public IActionResult ProsseccFile()
+        public async Task<IActionResult> ProsseccFile()
         {
-            _service.ProccessFile();
+            await _service.ProccessFile();
 
             return View();
         }
