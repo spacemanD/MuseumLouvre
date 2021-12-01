@@ -4,8 +4,13 @@ using DAL.EF.Entities.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Syncfusion.Drawing;
+using Syncfusion.Pdf;
+using Syncfusion.Pdf.Graphics;
+using Syncfusion.Pdf.Grid;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,6 +21,8 @@ namespace Museum.Web.Controllers
         private readonly IExhibitService _service;
 
         private readonly IAuthorService _serviceAuth;
+
+        private static List<PopExhibit> _exhibits;
 
         public ExhibitController(IExhibitService service, IAuthorService authorService)
         { 
@@ -31,25 +38,26 @@ namespace Museum.Web.Controllers
 
             var categoryQuery = Enum.GetValues(typeof(CountryList)).Cast<CountryList>();
 
-            var authors = new List<PopExhibit>();
+            var exhibits = new List<PopExhibit>();
             ViewBag.Category = new SelectList(categoryQuery);
 
             switch (sortOrder)
             {
                 case "rate_desc":
-                    authors = _service.GetLast10PopularExhibits().ToList();
+                    exhibits = _service.GetLast10PopularExhibits().ToList();
                     break;
                 default:
-                    authors = _service.GetTop10PopularExhibits().ToList();
+                    exhibits = _service.GetTop10PopularExhibits().ToList();
                     break;
             }
 
             if (category != null)
             {
-                authors = authors.Where(i => i.Exhibit.Country.ToString() == category).ToList();
+                exhibits = exhibits.Where(i => i.Exhibit.Country.ToString() == category).ToList();
             }
 
-            return View(authors);
+            _exhibits = exhibits;
+            return View(exhibits);
         }
         // GET: Products
         public async Task<IActionResult> Index(string sortOrder, string searchString, string category)
@@ -118,6 +126,74 @@ namespace Museum.Web.Controllers
             _service.UpdateStatistics(exhibit.ExhibitId);
 
             return View(exhibit);
+        }
+
+        public IActionResult ProsseccFile()
+        {
+            _service.ProccessFile();
+
+            return View();
+        }
+        public IActionResult CreatePDF()
+        {
+            //Create a new PDF document.
+            PdfDocument doc = new PdfDocument();
+            //Add a page.
+            PdfPage page = doc.Pages.Add();
+            //Create PDF graphics for the page
+            PdfGraphics graphics = page.Graphics;
+
+            //Set the standard font
+            PdfFont font = new PdfStandardFont(PdfFontFamily.Helvetica, 10);
+            PdfFont font1 = new PdfStandardFont(PdfFontFamily.TimesRoman, 20);
+
+            //Draw the text
+            string currentDate = "DATE " + DateTime.Now.ToString("yyyy'-'MM'-'dd 'Time:' HH':'mm':'ss");
+            string assign = "Assigned By Administators";
+            graphics.DrawString(currentDate, font, PdfBrushes.Black, new PointF(50, 500));
+            graphics.DrawString(assign, font, PdfBrushes.Black, new PointF(370, 500));
+            graphics.DrawString("Report", font1, PdfBrushes.Black, new PointF(250, 0));
+            //Create a PdfGrid.
+            PdfGrid pdfGrid = new PdfGrid();
+            //Add values to list
+            //Add list to IEnumerable
+            List<object> data = new List<object>();
+            foreach (var item in _exhibits)
+            {
+                data.Add(new
+                {
+                    Rate = item.Rate,
+                    ExhibitId = item.ExhibitId,
+                    Name = item.Exhibit.Name,
+                    Description = item.Exhibit.Description,
+                    Country = item.Exhibit.Country,
+                    CreationYear = item.Exhibit.CreationYear,
+                    ArtDirection = item.Exhibit.Direction,
+                    Cost = item.Exhibit.Cost,
+                    Author = item.Exhibit.Author.Name
+                });
+            }
+            IEnumerable<object> dataTable = data;
+            //Assign data source.
+            pdfGrid.DataSource = dataTable;
+            graphics.DrawString(currentDate, font, PdfBrushes.AliceBlue, new PointF(100, 10));
+
+            //Draw grid to the page of PDF document.
+            //Draw the text
+            pdfGrid.Draw(page, new Syncfusion.Drawing.PointF(10, 30));
+            //Save the PDF document to stream
+            MemoryStream stream = new MemoryStream();
+            doc.Save(stream);
+            //If the position is not set to '0' then the PDF will be empty.
+            stream.Position = 0;
+            //Close the document.
+            doc.Close(true);
+            //Defining the ContentType for pdf file.
+            string contentType = "application/pdf";
+            //Define the file name.
+            string fileName = "Report.pdf";
+            //Creates a FileContentResult object by using the file contents, content type, and file name.
+            return File(stream, contentType, fileName);
         }
 
         // GET: Products/Create

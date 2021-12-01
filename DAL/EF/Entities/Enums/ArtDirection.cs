@@ -3,7 +3,7 @@ namespace DAL.EF.Entities.Enums
 {
     public enum ArtDirection
     {
-        Gothick,
+        Gothick = 1,
         Baroque,
         Classicism,
         Sentimentalism,

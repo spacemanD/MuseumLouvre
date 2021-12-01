@@ -3,7 +3,7 @@ namespace DAL.EF.Entities.Enums
 {
     public enum CountryList
     {
-        Austria,
+        Austria = 1,
         Belgium,
         Bulgaria,
         Croatia,

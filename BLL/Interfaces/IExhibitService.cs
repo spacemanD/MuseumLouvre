@@ -25,5 +25,7 @@ namespace BLL.Interfaces
         public ICollection<PopExhibit> GetLast10PopularExhibits();
 
         public void UpdateStatistics(int exhibitId);
+
+        public Task ProccessFile();
     }
 }

@@ -2,8 +2,8 @@
 namespace DAL.EF.Entities.Enums
 {
     public enum ExhibitType
-    { 
-        Picture,
+    {
+        Picture = 1,
         Sculpture,
         Letters,
         Decorations,

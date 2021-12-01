@@ -5,10 +5,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using SelectPdf;
+using Syncfusion.Drawing;
+using Syncfusion.Pdf;
+using Syncfusion.Pdf.Graphics;
+using Syncfusion.Pdf.Grid;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,7 +25,7 @@ namespace Museum.Web.Controllers
 
         private readonly IExhibitService _serviceExhib;
 
-        private List<PopAuthor> popAuthors;
+        private static List<PopAuthor> popAuthors;
 
 
         public AuthorController(IAuthorService authorService, IExhibitService exhibit)
@@ -144,54 +146,85 @@ namespace Museum.Web.Controllers
 
         public IActionResult CreatePDF()
         {
-            if (startConversion)
+            //Create a new PDF document.
+            PdfDocument doc = new PdfDocument();
+            //Add a page.
+            PdfPage page = doc.Pages.Add();
+            //Create PDF graphics for the page
+            PdfGraphics graphics = page.Graphics;
+
+            //Set the standard font
+            PdfFont font = new PdfStandardFont(PdfFontFamily.Helvetica, 10);
+            PdfFont font1 = new PdfStandardFont(PdfFontFamily.TimesRoman, 20);
+
+            //Draw the text
+            string currentDate = "DATE " + DateTime.Now.ToString("yyyy'-'MM'-'dd 'Time:' HH':'mm':'ss");
+            string assign = "Assigned By Administators";
+            graphics.DrawString(currentDate, font, PdfBrushes.Black, new PointF(50, 500));
+            graphics.DrawString(assign, font, PdfBrushes.Black, new PointF(370, 500));
+            graphics.DrawString("Report", font1, PdfBrushes.Black, new PointF(250, 0));
+            //Create a PdfGrid.
+            PdfGrid pdfGrid = new PdfGrid();
+            //Add values to list
+            //Add list to IEnumerable
+            List<object> data = new List<object>();
+            foreach (var item in popAuthors)
             {
-                // get html of the page
-                TextWriter myWriter = new StringWriter();
-                HtmlTextWriter htmlWriter = new HtmlTextWriter(myWriter);
-                base.Render(htmlWriter);
-
-                // instantiate a html to pdf converter object
-                HtmlToPdf converter = new HtmlToPdf();
-
-                // create a new pdf document converting the html string of the page
-                PdfDocument doc = converter.ConvertHtmlString(
-                    myWriter.ToString(), Url);
-
-                // save pdf document
-                doc.Save(Response, false, "Sample.pdf");
-
-                // close pdf document
-                doc.Close();
+                data.Add(new
+                {
+                    Rate = item.Rate,
+                    AuthorId = item.AuthorId,
+                    Name = item.Author.Name,
+                    Surname = item.Author.Surname,
+                    MiddleName = item.Author.MiddleName,
+                    BirthDate = item.Author.BirthDate,
+                    DeathDate = item.Author.DeathDate,
+                    Country = item.Author.Country
+                });
             }
-            else
-            {
-                // render web page in browser
-                base.Render(writer);
-            }
+            IEnumerable<object> dataTable = data;
+            //Assign data source.
+            pdfGrid.DataSource = dataTable;
+            graphics.DrawString(currentDate, font, PdfBrushes.AliceBlue, new PointF(100, 10));
+
+            //Draw grid to the page of PDF document.
+            //Draw the text
+            pdfGrid.Draw(page, new Syncfusion.Drawing.PointF(10, 30));
+            //Save the PDF document to stream
+            MemoryStream stream = new MemoryStream();
+            doc.Save(stream);
+            //If the position is not set to '0' then the PDF will be empty.
+            stream.Position = 0;
+            //Close the document.
+            doc.Close(true);
+            //Defining the ContentType for pdf file.
+            string contentType = "application/pdf";
+            //Define the file name.
+            string fileName = "Report.pdf";
+            //Creates a FileContentResult object by using the file contents, content type, and file name.
+            return File(stream, contentType, fileName);
         }
 
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("AuthorId,Name,Surname,MiddleName,BirthDate,DeathDate,Country")] Author author
-            , string[] selectedExhibits)
+            , string[] selectedCourses)
         {
-            if (selectedExhibits != null)
-            {
-                author.Exhibits = new List<Exhibit>();
-                foreach (var exhibit in selectedExhibits)
-                {
-                    var courseToAdd = new Exhibit { AuthorId = author.AuthorId, Name = exhibit};
-                    author.Exhibits.Add(courseToAdd);
-                }
-            }
+
             if (ModelState.IsValid)
             {
                 await Task.Run(() => _service.AddAsync(author));
+                var author1 = _service.GetAllListAsync().FirstOrDefault(x => x.Name == author.Name && x.Surname == author.Surname && x.MiddleName == author.MiddleName);
+
+                if (selectedCourses != null)
+                {
+                    author1 = CreateAuthorExhibits(selectedCourses, author1);
+
+                }
                 return RedirectToAction(nameof(Index));
             }
-            PopulateAssignedCourseData(author);
+                    
             return View(author);
         }
 
@@ -269,9 +302,9 @@ namespace Museum.Web.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var product = _service.GetAllListAsync().ToList().FirstOrDefault(x => x.AuthorId == id);
-            var authExhibits = _serviceExhib.GetAllListAsync().Where(x => x.AuthorId == id || x.Author.AuthorId == id);
-            await _service.DeleteAsync(product);
+            var authExhibits = _serviceExhib.GetAllListAsync().Where(x => x?.AuthorId == id || x?.Author?.AuthorId == id);
             await _serviceExhib.DeleteRangeAsync(authExhibits);
+            await _service.DeleteAsync(product);
             return RedirectToAction(nameof(Index));
         }
 
@@ -316,6 +349,33 @@ namespace Museum.Web.Controllers
                             _serviceExhib.DeleteAsync(exhibit);
                         }
                     }
+                }
+            }
+            return authorToupdate;
+        }
+
+        private Author CreateAuthorExhibits(string[] selectedCourses, Author authorToupdate)
+        {
+            if (selectedCourses == null)
+            {
+                authorToupdate.Exhibits = new List<Exhibit>();
+                return authorToupdate;
+            }
+            if (authorToupdate.Exhibits == null)
+            {
+                authorToupdate.Exhibits = new List<Exhibit>();
+            }
+            var exhibitList = _serviceExhib.GetAllListAsync();
+            var selectedCoursesHS = new HashSet<string>(selectedCourses);
+            var author = _service.GetAllListAsync().FirstOrDefault(x => x.AuthorId == authorToupdate.AuthorId);
+            var authExhi = author.Exhibits.Select(x => x.ExhibitId);
+            foreach (var exhibit in exhibitList)
+            {
+                if (selectedCoursesHS.Contains(exhibit.ExhibitId.ToString()))
+                {
+                    exhibit.Author = authorToupdate;
+                    exhibit.AuthorId = authorToupdate.AuthorId;
+                    _serviceExhib.UpdateAsync(exhibit);
                 }
             }
             return authorToupdate;
