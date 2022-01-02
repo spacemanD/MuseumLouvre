@@ -26,6 +26,8 @@ namespace DAL
 
         public DbSet<PopExhibit> PopExhibits { get; set; }
 
+        public DbSet<PopCollection> PopCollections { get; set; }
+
         public DbSet<ArtDirections> ArtDirections { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

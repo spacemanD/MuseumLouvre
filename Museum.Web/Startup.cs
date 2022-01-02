@@ -41,6 +41,7 @@ namespace Museum.Web
         {
             services.AddScoped<IAuthorService, AuthorService>();
             services.AddScoped<IExhibitService, ExhibitService>();
+            services.AddScoped<ICollectionService, CollectionService>();
         }
 
         private void InstallDataAccess(IServiceCollection services)
