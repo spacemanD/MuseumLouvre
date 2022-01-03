@@ -27,5 +27,7 @@ namespace BLL.Interfaces
         public void UpdateStatistics(int exhibitId);
 
         public Task ProccessFile();
+
+        public IEnumerable<Exhibit> GetAllListAsyncNonAuthors();
     }
 }

@@ -22,12 +22,15 @@ namespace Museum.Web.Controllers
 
         private readonly IAuthorService _serviceAuth;
 
+        private readonly ICollectionService _serviceColl;
+
         private static List<PopExhibit> _exhibits;
 
-        public ExhibitController(IExhibitService service, IAuthorService authorService)
+        public ExhibitController(IExhibitService service, IAuthorService authorService, ICollectionService collectionService)
         { 
             _service = service;
             _serviceAuth = authorService;
+            _serviceColl = collectionService;
         }
 
         public IActionResult PopularExhibits(string sortOrder ,string category)
@@ -208,7 +211,7 @@ namespace Museum.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Name,AuthorId,CollectionId,CreationYear,Description,Type,Cost,Direction,Materials,Country")] Exhibit exhibit)
         {
-            PopulateDepartmentsDropDownList(exhibit.AuthorId);
+            PopulateDepartmentsDropDownList(exhibit.AuthorId, exhibit.CollectionId);
             if (ModelState.IsValid)
             {
                 await _service.AddAsync(exhibit);
@@ -230,7 +233,7 @@ namespace Museum.Web.Controllers
             {
                 return NotFound();
             }
-            PopulateDepartmentsDropDownList(exhibit.AuthorId);
+            PopulateDepartmentsDropDownList(exhibit.AuthorId, exhibit.CollectionId);
             return View(exhibit);
         }
 
@@ -297,10 +300,12 @@ namespace Museum.Web.Controllers
             return _service.GetAllListAsync().ToList().Any(e => e.ExhibitId == id);
         }
 
-        private void PopulateDepartmentsDropDownList(object selectedDepartment = null)
+        private void PopulateDepartmentsDropDownList(object selectedDepartment = null, object selectedCollection = null)
         {
             var authorList = _serviceAuth.GetAllListAsync();
+            var collectionList = _serviceColl.GetAllListAsync();
             ViewBag.AuthorId = new SelectList(authorList.ToList(), "AuthorId", "Name", selectedDepartment);
+            ViewBag.CollectionId = new SelectList(collectionList.ToList(), "CollectionId", "Name", selectedCollection);
         }
     }
 }

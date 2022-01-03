@@ -136,10 +136,9 @@ namespace DAL.Repositories
         public async Task<IEnumerable<T>> GetRangeAsync<T>(bool tracking, Func<T, bool> predicate, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null) where T : class
         {
             IQueryable<T> query = this.dbContext.Set<T>();
-            if (!tracking)
-            {
+
                 query = query.AsNoTracking();
-            }
+            
             if (include != null)
             {
                 query = include(query);

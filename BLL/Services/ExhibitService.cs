@@ -29,10 +29,27 @@ namespace BLL.Services
         }
         public IEnumerable<Exhibit> GetAllListAsync()
         {
-            var list = _repos.GetRangeAsync<Exhibit>(false, x => x != null,
+            var list = _repos.GetRange<Exhibit>(false, x => x != null,
                 include: source => source
                 .Include(a => a.Collection)
-                .Include(a => a.Author)).Result.ToList();
+                .Include(a => a.Author)).ToList();
+
+            if (list != null)
+            {
+                _logger.LogInformation("Successfully retrieved from DB");
+            }
+            else
+            {
+                _logger.LogInformation("Failed when this retrieved from DB");
+            }
+            return list;
+        }
+
+        public IEnumerable<Exhibit> GetAllListAsyncNonAuthors()
+        {
+            var list = _repos.GetRange<Exhibit>(false, x => x != null,
+                include: source => source
+                .Include(a => a.Collection)).ToList();
 
             if (list != null)
             {

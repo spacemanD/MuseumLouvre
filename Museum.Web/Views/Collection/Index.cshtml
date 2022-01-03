@@ -26,11 +26,11 @@
                 @Html.DisplayNameFor(model => model.Description)
             </th>
             <th>
-                @Html.ActionLink("StartTime", "Index", new { sortOrder = ViewBag.start_DateSortParm })
+                @Html.ActionLink("StartTime", "Index", new { sortOrder = ViewBag.StartDateSortParm })
 
             </th>
             <th>
-                @Html.ActionLink("EndTime", "Index", new { sortOrder = ViewBag.end_DateSortParm })
+                @Html.ActionLink("EndTime", "Index", new { dateSort = ViewBag.EndDateSortParm })
             </th>
             <th></th>
         </tr>

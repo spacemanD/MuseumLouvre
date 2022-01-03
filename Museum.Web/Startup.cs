@@ -34,7 +34,7 @@ namespace Museum.Web
 
         private void InstallBusinessLogic(IServiceCollection services)
         {
-            services.AddTransient<IRepository, Repository>();
+            services.AddScoped<IRepository, Repository>();
         }
 
         private void InstallBusinessLogicLayer(IServiceCollection services)
@@ -48,7 +48,7 @@ namespace Museum.Web
         {
             services.AddDbContext<AppDbContext>(options =>
                  options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")),
-                 ServiceLifetime.Transient);
+                 ServiceLifetime.Scoped);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

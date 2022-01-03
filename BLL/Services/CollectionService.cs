@@ -44,13 +44,18 @@ namespace BLL.Services
             return _repos.DeleteRangeAsync(range);
         }
 
+        public Collection GetById(int id)
+        {
+            return _repos.GetAsync<Collection>(false, x => x.CollectionId == id,
+            include: source => source
+            .Include(a => a.Exhibits)).Result;     
+        }
         public IEnumerable<Collection> GetAllListAsync()
         {
-            var list = _repos.GetRangeAsync<Collection>(false, x => x != null,
+            var list = _repos.GetRange<Collection>(false, x => x != null,
             include: source => source
-            .Include(a => a.Exhibits)
-            .ThenInclude(x => x.Author))
-            .Result.ToList();
+            .Include(a => a.Exhibits))
+            .ToList();
 
             if (list != null)
             {

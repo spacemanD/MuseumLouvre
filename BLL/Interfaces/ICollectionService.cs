@@ -27,5 +27,7 @@ namespace BLL.Interfaces
         public ICollection<PopCollection> GetLast10PopularCollections();
         
         public void UpdateStatistics(int exhibitId);
+
+        public Collection GetById(int id);
     }
 }

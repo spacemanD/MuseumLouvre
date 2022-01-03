@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Museum.Web.Controllers
@@ -50,10 +51,11 @@ namespace Museum.Web.Controllers
             return View(exhibits);
         }
         // GET: Products
-        public IActionResult Index(string sortOrder, string searchString, string category)
+        public IActionResult Index(string sortOrder, string searchString, string dateSort)
         {
             ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
-            ViewBag.DateSortParm = sortOrder == "Date" ? "date_desc" : "Date";
+            ViewBag.StartDateSortParm = sortOrder == "Date" ? "date_desc" : "Date";
+            ViewBag.EndDateSortParm = dateSort == "Date" ? "date_desc" : "Date";
             ViewBag.CategorySortParm = sortOrder == "category" ? "category_desc" : "category";
 
             if (sortOrder == null)
@@ -61,7 +63,6 @@ namespace Museum.Web.Controllers
                 sortOrder = ViewBag.CategorySortParm;
             }
 
-            ViewBag.CurrentFilter = category;
             var exhibits = _service.GetAllListAsync();
 
             if (!String.IsNullOrEmpty(searchString))
@@ -74,22 +75,32 @@ namespace Museum.Web.Controllers
                 case "name_desc":
                     exhibits = exhibits.OrderByDescending(s => s.Name);
                     break;
-                case "start_Date":
+                case "Date":
                     exhibits = exhibits.OrderBy(s => s.StartTime);
                     break;
-                case "start_Date_desc":
-                    exhibits = exhibits.OrderByDescending(s => s.StartTime);
-                    break;
-                case "end_Date":
-                    exhibits = exhibits.OrderBy(s => s.StartTime);
-                    break;
-                case "end_date_desc":
+                case "date_desc":
                     exhibits = exhibits.OrderByDescending(s => s.StartTime);
                     break;
                 default:
                     exhibits = exhibits.OrderBy(s => s.Name);
                     break;
             }
+            if (dateSort != null)
+            {
+                switch (dateSort)
+                {
+                    case "Date":
+                        exhibits = exhibits.OrderBy(s => s.EndTime);
+                        break;
+                    case "date_desc":
+                        exhibits = exhibits.OrderByDescending(s => s.EndTime);
+                        break;
+                    default:
+                        exhibits = exhibits.OrderBy(s => s.Name);
+                        break;
+                }
+            }
+
             return View(exhibits.ToList());
         }
 
@@ -136,12 +147,14 @@ namespace Museum.Web.Controllers
                 data.Add(new
                 {
                     Rate = item.Rate,
-                    ExhibitId = item.CollectionId,
+                    CollectionId = item.CollectionId,
                     Name = item.Collection.Name,
                     Description = item.Collection.Description,
                     StartTime = item.Collection.StartTime,
                     EndTime = item.Collection.EndTime,
-                    ArtDirection = item.Collection.Exhibits
+                    Exhibits = string.Join(" ;", 
+                    item.Collection.Exhibits.Select(x => String.Format("{0} - {1}",
+                    x?.Name, x.Author == null ? "None Author" : x.Author.Surname))),
                 });
             }
             IEnumerable<object> dataTable = data;
@@ -231,6 +244,7 @@ namespace Museum.Web.Controllers
                 try
                 {
                     author = UpdateInstructorCourses(selectedCourses, author);
+                    Thread.Sleep(100);
                     _service.UpdateAsync(author);
                 }
                 catch (DbUpdateConcurrencyException)
@@ -294,7 +308,7 @@ namespace Museum.Web.Controllers
             {
                 authorToupdate.Exhibits = new List<Exhibit>();
             }
-            var exhibitList = _serviceAuth.GetAllListAsync();
+            var exhibitList = _serviceAuth.GetAllListAsyncNonAuthors();
             var selectedCoursesHS = new HashSet<string>(selectedCourses);
             var author = _service.GetAllListAsync().FirstOrDefault(x => x.CollectionId == authorToupdate.CollectionId);
             var authExhi = author.Exhibits.Select(x => x.ExhibitId);
@@ -302,9 +316,9 @@ namespace Museum.Web.Controllers
             {
                 if (selectedCoursesHS.Contains(exhibit.ExhibitId.ToString()))
                 {
-                    if (exhibit.AuthorId == null || exhibit.AuthorId != authorToupdate.CollectionId)
+                    if (exhibit.CollectionId == null || exhibit.CollectionId != authorToupdate.CollectionId)
                     {
-                        exhibit.AuthorId = authorToupdate.CollectionId;
+                        exhibit.CollectionId = authorToupdate.CollectionId;
                         authorToupdate.Exhibits.Add(exhibit);
                     }
                 }
@@ -312,15 +326,16 @@ namespace Museum.Web.Controllers
                 {
                     if (authExhi.Contains(exhibit.ExhibitId))
                     {
-                        Exhibit courseToRemove = _serviceAuth.GetAllListAsync().FirstOrDefault(i => i.ExhibitId == exhibit.ExhibitId);
-                        if (exhibit.AuthorId == authorToupdate.CollectionId)
+                        Exhibit courseToRemove = _serviceAuth.GetAllListAsyncNonAuthors().FirstOrDefault(i => i.ExhibitId == exhibit.ExhibitId);
+                        if (exhibit.CollectionId == authorToupdate.CollectionId)
                         {
                             authorToupdate.Exhibits.Remove(exhibit);
-                            _serviceAuth.DeleteAsync(exhibit);
+                           // _serviceAuth.DeleteAsync(exhibit);
                         }
                     }
                 }
             }
+            Thread.Sleep(100);
             return authorToupdate;
         }
 
@@ -335,9 +350,9 @@ namespace Museum.Web.Controllers
             {
                 authorToupdate.Exhibits = new List<Exhibit>();
             }
-            var exhibitList = _serviceAuth.GetAllListAsync();
+            var exhibitList = _serviceAuth.GetAllListAsyncNonAuthors();
             var selectedCoursesHS = new HashSet<string>(selectedCourses);
-            var author = _service.GetAllListAsync().FirstOrDefault(x => x.CollectionId == authorToupdate.CollectionId);
+            var author = _service.GetById(authorToupdate.CollectionId);
             var authExhi = author.Exhibits.Select(x => x.ExhibitId);
             foreach (var exhibit in exhibitList)
             {
@@ -352,7 +367,7 @@ namespace Museum.Web.Controllers
         }
         private void PopulateAssignedCourseData(Collection instructor)
         {
-            var allCourses = _serviceAuth.GetAllListAsync();
+            var allCourses = _serviceAuth.GetAllListAsyncNonAuthors();
             var instructorCourses = new HashSet<int>(instructor.Exhibits.Select(c => c.ExhibitId));
             var viewModel = new List<Exhibit>();
             foreach (var course in allCourses)
