@@ -134,29 +134,38 @@ namespace BLL.Services
 
         public Task ProccessFile(FileModel file)
         {
-            var path = file.Path;
-            string[] lines = File.ReadAllLines(path);
-            var col = new string [10];
-            var exhibits = new List<Exhibit>();
-            foreach (string line in lines)
+            try
             {
-                col = line.Split('|');
-                var exhibit = new Exhibit()
+                var path = file.Path;
+                string[] lines = File.ReadAllLines(path);
+                var col = new string[10];
+                var exhibits = new List<Exhibit>();
+                foreach (string line in lines)
                 {
-                    Name = col[0],
-                    AuthorId = Convert.ToInt32(col[1]),
-                    CreationYear = Convert.ToInt32(col[3]),
-                    Description = col[4],
-                    Type = (ExhibitType)Enum.Parse(typeof(ExhibitType), col[5]),
-                    Cost = Convert.ToInt32(col[6]),
-                    Direction = (ArtDirection)Enum.Parse(typeof(ArtDirection), col[7]),
-                    Materials = col[8],
-                    Country = (CountryList)Enum.Parse(typeof(CountryList), col[9])
-                };
-                exhibits.Add(exhibit);
-            }
+                    col = line.Split('|');
+                    var exhibit = new Exhibit()
+                    {
+                        Name = col[0],
+                        AuthorId = Convert.ToInt32(col[1]),
+                        CreationYear = Convert.ToInt32(col[3]),
+                        Description = col[4],
+                        Type = (ExhibitType)Enum.Parse(typeof(ExhibitType), col[5]),
+                        Cost = Convert.ToInt32(col[6]),
+                        Direction = (ArtDirection)Enum.Parse(typeof(ArtDirection), col[7]),
+                        Materials = col[8],
+                        Country = (CountryList)Enum.Parse(typeof(CountryList), col[9])
+                    };
+                    exhibits.Add(exhibit);
+                }
+
+                return AddRangeAsync(exhibits);
             
-            return AddRangeAsync(exhibits);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
+
     }
 }

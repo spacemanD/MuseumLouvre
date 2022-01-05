@@ -285,9 +285,6 @@ namespace Museum.Web.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var product = _service.GetAllListAsync().ToList().FirstOrDefault(x => x.CollectionId == id);
-            var authExhibits = _serviceAuth.GetAllListAsync().Where(x => x?.AuthorId == id || x?.Author?.AuthorId == id);
-            authExhibits.All(c => { c.AuthorId = null; return true; });
-            await _serviceAuth.UpdateRangeAsync(authExhibits);
             await _service.DeleteAsync(product);
             return RedirectToAction(nameof(Index));
         }

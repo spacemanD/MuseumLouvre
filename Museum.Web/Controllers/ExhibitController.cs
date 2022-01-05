@@ -140,6 +140,12 @@ namespace Museum.Web.Controllers
             return View(exhibit);
         }
 
+        public IActionResult ProsseccFile()
+        {
+            return View();
+        }
+
+        [HttpPost]
         public async Task<IActionResult> ProsseccFile(IFormFile uploadedFile)
         {
             if (uploadedFile != null)
@@ -151,13 +157,12 @@ namespace Museum.Web.Controllers
                 {
                     await uploadedFile.CopyToAsync(fileStream);
                 }
-                FileModel file = new FileModel { Name = uploadedFile.FileName, Path = path };
+                FileModel file = new FileModel { Name = uploadedFile.FileName, Path = _appEnvironment.WebRootPath + path };
                 await _service.ProccessFile(file);
             }
 
-            return RedirectToAction("ProsseccFile");      
+            return RedirectToAction("Privacy", "Home");
 
-            return View("ProsseccFile");
         }
         public IActionResult CreatePDF()
         {

@@ -391,7 +391,7 @@ namespace Museum.Web.Controllers
                 {
                     ExhibitId = course.ExhibitId,
                     Name = course.Name,
-                    AuthorId = instructor.AuthorId
+                    AuthorId = instructor.AuthorId 
                 });
             }
             ViewData["Exhibits"] = viewModel;

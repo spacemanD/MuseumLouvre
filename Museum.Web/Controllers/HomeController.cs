@@ -3,13 +3,7 @@ using BLL.Interfaces;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Museum.Web.Models;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Museum.Web.Controllers
@@ -29,6 +23,12 @@ namespace Museum.Web.Controllers
         {
             return View();
         }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
         [HttpPost]
         public async Task<IActionResult> AddFile(IFormFile uploadedFile)
         {
@@ -45,7 +45,7 @@ namespace Museum.Web.Controllers
                 await _context.ProccessFile(file);
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Privacy");
         }
     }
 }

@@ -75,7 +75,7 @@ namespace Museum.Web
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Exhibit}/{action=Index}/{id?}");
             });
         }
     }
