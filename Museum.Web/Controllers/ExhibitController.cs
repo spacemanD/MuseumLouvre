@@ -1,9 +1,13 @@
-﻿using BLL.Interfaces;
+﻿using BLL;
+using BLL.Interfaces;
 using DAL.EF.Entities;
 using DAL.EF.Entities.Enums;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Museum.Web.Models;
 using Syncfusion.Drawing;
 using Syncfusion.Pdf;
 using Syncfusion.Pdf.Graphics;
@@ -25,12 +29,17 @@ namespace Museum.Web.Controllers
         private readonly ICollectionService _serviceColl;
 
         private static List<PopExhibit> _exhibits;
+        IWebHostEnvironment _appEnvironment;
 
-        public ExhibitController(IExhibitService service, IAuthorService authorService, ICollectionService collectionService)
+
+        public ExhibitController(IExhibitService service, 
+            IAuthorService authorService, ICollectionService collectionService,
+             IWebHostEnvironment appEnvironment)
         { 
             _service = service;
             _serviceAuth = authorService;
             _serviceColl = collectionService;
+            _appEnvironment = appEnvironment;
         }
 
         public IActionResult PopularExhibits(string sortOrder ,string category)
@@ -131,11 +140,24 @@ namespace Museum.Web.Controllers
             return View(exhibit);
         }
 
-        public async Task<IActionResult> ProsseccFile()
+        public async Task<IActionResult> ProsseccFile(IFormFile uploadedFile)
         {
-            await _service.ProccessFile();
+            if (uploadedFile != null)
+            {
+                // путь к папке Files
+                string path = "/Files/" + uploadedFile.FileName;
+                // сохраняем файл в папку Files в каталоге wwwroot
+                using (var fileStream = new FileStream(_appEnvironment.WebRootPath + path, FileMode.Create))
+                {
+                    await uploadedFile.CopyToAsync(fileStream);
+                }
+                FileModel file = new FileModel { Name = uploadedFile.FileName, Path = path };
+                await _service.ProccessFile(file);
+            }
 
-            return View();
+            return RedirectToAction("ProsseccFile");      
+
+            return View("ProsseccFile");
         }
         public IActionResult CreatePDF()
         {

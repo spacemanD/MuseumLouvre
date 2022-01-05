@@ -132,9 +132,9 @@ namespace BLL.Services
             }
         }
 
-        public Task ProccessFile()
+        public Task ProccessFile(FileModel file)
         {
-            var path =@"D:\test.txt";
+            var path = file.Path;
             string[] lines = File.ReadAllLines(path);
             var col = new string [10];
             var exhibits = new List<Exhibit>();

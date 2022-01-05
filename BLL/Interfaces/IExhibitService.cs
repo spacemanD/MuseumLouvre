@@ -1,5 +1,6 @@
 ﻿using DAL.EF.Entities;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace BLL.Interfaces
@@ -26,7 +27,7 @@ namespace BLL.Interfaces
 
         public void UpdateStatistics(int exhibitId);
 
-        public Task ProccessFile();
+        public Task ProccessFile(FileModel file);
 
         public IEnumerable<Exhibit> GetAllListAsyncNonAuthors();
     }
