@@ -52,27 +52,30 @@
                         <tr>
                             @{
                                 int cnt = 0;
-                                List<DAL.EF.Entities.Exhibit> exhibits = ViewBag.Exhibits;
-
-                                foreach (var course in exhibits)
+                                List<DAL.EF.Entities.Exhibit> exhibits = ViewBag?.Exhibits;
+                                if (exhibits != null)
                                 {
-                                    if (cnt++ % 3 == 0)
+                                    foreach (var course in exhibits)
                                     {
-                                    @:</tr><tr>
+                                        if (cnt++ % 3 == 0)
+                                        {
+                                        @:</tr><tr>
+                                        }
+                                        @:<td>
+                                            <input type="checkbox"
+                                                   name="selectedCourses"
+                                                   value="@course.ExhibitId"
+                                                   @(Html.Raw(course.AuthorId != null ? "checked=\"checked\"" : "")) />
+                                            @course.ExhibitId @:  @course.Name
+                                        @:</td>
                                     }
-                                    @:<td>
-                                        <input type="checkbox"
-                                               name="selectedCourses"
-                                               value="@course.ExhibitId"
-                                               @(Html.Raw(course.AuthorId != 0 ? "checked=\"checked\"" : "")) />
-                                        @course.ExhibitId @:  @course.Name
-                                    @:</td>
                                 }
+
                             @:</tr>
                             }
                         </table>
                     </div>
-            </form>
+</form>
 </div>
 </div>
 

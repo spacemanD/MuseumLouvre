@@ -30,5 +30,7 @@ namespace BLL.Interfaces
         public Task ProccessFile(FileModel file);
 
         public IEnumerable<Exhibit> GetAllListAsyncNonAuthors();
+
+        public IEnumerable<Exhibit> GetAllListAsyncWithNonCollection();
     }
 }

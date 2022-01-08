@@ -39,20 +39,22 @@
                             @{
                                 int cnt = 0;
                                 List<DAL.EF.Entities.Exhibit> exhibits = ViewBag.Exhibits;
-
-                                foreach (var course in exhibits)
+                                if (exhibits != null)
                                 {
-                                    if (cnt++ % 3 == 0)
+                                    foreach (var course in exhibits)
                                     {
-                                    @:</tr><tr>
+                                        if (cnt++ % 3 == 0)
+                                        {
+                                        @:</tr><tr>
+                                        }
+                                        @:<td>
+                                            <input type="checkbox"
+                                                   name="selectedCourses"
+                                                   value="@course.ExhibitId"
+                                                   @(Html.Raw(course.CollectionId != null ? "checked=\"checked\"" : "")) />
+                                            @course.ExhibitId @:  @course.Name
+                                        @:</td>
                                     }
-                                    @:<td>
-                                        <input type="checkbox"
-                                               name="selectedCourses"
-                                               value="@course.ExhibitId"
-                                               @(Html.Raw(course.CollectionId == null ? "checked=\"checked\"" : "")) />
-                                        @course.ExhibitId @:  @course.Name
-                                    @:</td>
                                 }
                             @:</tr>
                             }

@@ -1,5 +1,4 @@
 ﻿using DAL.EF.Entities;
-using DAL.EF.Entities.Enums;
 using Microsoft.EntityFrameworkCore;
 using System;
 
@@ -29,6 +28,8 @@ namespace DAL
         public DbSet<PopCollection> PopCollections { get; set; }
 
         public DbSet<ArtDirections> ArtDirections { get; set; }
+
+        public DbSet<User> Users { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

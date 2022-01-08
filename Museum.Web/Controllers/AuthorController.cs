@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Museum.Web.Controllers
@@ -222,8 +223,13 @@ namespace Museum.Web.Controllers
 
                 }
                 return RedirectToAction(nameof(Index));
+                PopulateAssignedCourseData(author);
             }
-                    
+            else 
+            {
+                ModelState.AddModelError("", "Date of birth is bigger than date of birth");
+            }
+
             return View(author);
         }
 
@@ -246,7 +252,7 @@ namespace Museum.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, [Bind("AuthorId,Name,Surname,MiddleName,BirthDate,DeathDate,Country")] Author author,
+        public async Task<IActionResult> Edit(int id, [Bind("AuthorId,Name,Surname,MiddleName,BirthDate,DeathDate,Country")] Author author,
             string[] selectedCourses)
         {
             if (id == 0)
@@ -261,7 +267,8 @@ namespace Museum.Web.Controllers
                 try
                 {
                     author = UpdateInstructorCourses(selectedCourses, author);
-                    _service.UpdateAsync(author);
+                    Thread.Sleep(1000);
+                    await _service.UpdateAsync(author);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -301,9 +308,6 @@ namespace Museum.Web.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var product = _service.GetAllListAsync().ToList().FirstOrDefault(x => x.AuthorId == id);
-            var authExhibits = _serviceExhib.GetAllListAsync().Where(x => x?.AuthorId == id || x?.Author?.AuthorId == id);
-            authExhibits.All(c => { c.AuthorId = null; return true; });
-            await _serviceExhib.UpdateRangeAsync(authExhibits);
             await _service.DeleteAsync(product);
             return RedirectToAction(nameof(Index));
         }
@@ -324,7 +328,7 @@ namespace Museum.Web.Controllers
             {
                 authorToupdate.Exhibits = new List<Exhibit>();
             }
-            var exhibitList = _serviceExhib.GetAllListAsync();
+            var exhibitList = _serviceExhib.GetAllListAsyncWithNonCollection();
             var selectedCoursesHS = new HashSet<string>(selectedCourses);
             var author = _service.GetAllListAsync().FirstOrDefault(x => x.AuthorId == authorToupdate.AuthorId);
             var authExhi = author.Exhibits.Select(x => x.ExhibitId);
@@ -336,17 +340,17 @@ namespace Museum.Web.Controllers
                     {
                         exhibit.AuthorId = authorToupdate.AuthorId;
                         authorToupdate.Exhibits.Add(exhibit);
+                        //_serviceExhib.UpdateAsync(exhibit);
                     }
                 }
                 else
                 {
                     if (authExhi.Contains(exhibit.ExhibitId))
                     {
-                        Exhibit courseToRemove = _serviceExhib.GetAllListAsync().FirstOrDefault(i => i.ExhibitId == exhibit.ExhibitId);
+                        var courseToRemove = _serviceExhib.GetAllListAsync().FirstOrDefault(i => i.ExhibitId == exhibit.ExhibitId);
                         if (exhibit.AuthorId == authorToupdate.AuthorId)
                         {
                             authorToupdate.Exhibits.Remove(exhibit);
-                            _serviceExhib.DeleteAsync(exhibit);
                         }
                     }
                 }

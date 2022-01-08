@@ -45,6 +45,23 @@ namespace BLL.Services
             return list;
         }
 
+        public IEnumerable<Exhibit> GetAllListAsyncWithNonCollection()
+        {
+            var list = _repos.GetRange<Exhibit>(false, x => x != null,
+                include: source => source
+                .Include(a => a.Author)).ToList();
+
+            if (list != null)
+            {
+                _logger.LogInformation("Successfully retrieved from DB");
+            }
+            else
+            {
+                _logger.LogInformation("Failed when this retrieved from DB");
+            }
+            return list;
+        }
+
         public IEnumerable<Exhibit> GetAllListAsyncNonAuthors()
         {
             var list = _repos.GetRange<Exhibit>(false, x => x != null,
@@ -147,6 +164,7 @@ namespace BLL.Services
                     {
                         Name = col[0],
                         AuthorId = Convert.ToInt32(col[1]),
+                        CollectionId = Convert.ToInt32(col[2]),
                         CreationYear = Convert.ToInt32(col[3]),
                         Description = col[4],
                         Type = (ExhibitType)Enum.Parse(typeof(ExhibitType), col[5]),

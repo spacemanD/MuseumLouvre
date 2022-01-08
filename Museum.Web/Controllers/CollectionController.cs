@@ -196,14 +196,16 @@ namespace Museum.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                await Task.Run(() => _service.AddAsync(author));
-                var author1 = _service.GetAllListAsync().FirstOrDefault(x => x.Name == author.Name);
+                await _service.AddAsync(author);
+                var author1 = _service.GetAllListAsync().FirstOrDefault(x => x.CollectionId == author.CollectionId);
 
                 if (selectedCourses != null)
                 {
-                    author1 = CreateAuthorExhibits(selectedCourses, author1);
-
+                    author = UpdateInstructorCourses(selectedCourses, author);
+                    Thread.Sleep(1000);
+                    await _service.UpdateAsync(author);
                 }
+
                 return RedirectToAction(nameof(Index));
             }
 
@@ -244,7 +246,7 @@ namespace Museum.Web.Controllers
                 try
                 {
                     author = UpdateInstructorCourses(selectedCourses, author);
-                    Thread.Sleep(100);
+                    Thread.Sleep(1000);
                     _service.UpdateAsync(author);
                 }
                 catch (DbUpdateConcurrencyException)
@@ -327,39 +329,11 @@ namespace Museum.Web.Controllers
                         if (exhibit.CollectionId == authorToupdate.CollectionId)
                         {
                             authorToupdate.Exhibits.Remove(exhibit);
-                           // _serviceAuth.DeleteAsync(exhibit);
                         }
                     }
                 }
             }
             Thread.Sleep(100);
-            return authorToupdate;
-        }
-
-        private Collection CreateAuthorExhibits(string[] selectedCourses, Collection authorToupdate)
-        {
-            if (selectedCourses == null)
-            {
-                authorToupdate.Exhibits = new List<Exhibit>();
-                return authorToupdate;
-            }
-            if (authorToupdate.Exhibits == null)
-            {
-                authorToupdate.Exhibits = new List<Exhibit>();
-            }
-            var exhibitList = _serviceAuth.GetAllListAsyncNonAuthors();
-            var selectedCoursesHS = new HashSet<string>(selectedCourses);
-            var author = _service.GetById(authorToupdate.CollectionId);
-            var authExhi = author.Exhibits.Select(x => x.ExhibitId);
-            foreach (var exhibit in exhibitList)
-            {
-                if (selectedCoursesHS.Contains(exhibit.ExhibitId.ToString()))
-                {
-                    exhibit.Collection = authorToupdate;
-                    exhibit.CollectionId = authorToupdate.CollectionId;
-                    _serviceAuth.UpdateAsync(exhibit);
-                }
-            }
             return authorToupdate;
         }
         private void PopulateAssignedCourseData(Collection instructor)

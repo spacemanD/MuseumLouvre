@@ -3,13 +3,13 @@ using BLL.Services;
 using DAL;
 using DAL.Interfaces;
 using DAL.Repositories;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
 
 namespace Museum.Web
 {
@@ -30,6 +30,11 @@ namespace Museum.Web
             InstallDataAccess(services);
             InstallBusinessLogic(services);
             InstallBusinessLogicLayer(services);
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(options => //CookieAuthenticationOptions
+                        {
+                options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
+    });
         }
 
         private void InstallBusinessLogic(IServiceCollection services)
@@ -39,9 +44,11 @@ namespace Museum.Web
 
         private void InstallBusinessLogicLayer(IServiceCollection services)
         {
+            services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAuthorService, AuthorService>();
             services.AddScoped<IExhibitService, ExhibitService>();
             services.AddScoped<ICollectionService, CollectionService>();
+            services.AddScoped<IEmailSender, EmailSender>();
         }
 
         private void InstallDataAccess(IServiceCollection services)
@@ -69,13 +76,15 @@ namespace Museum.Web
 
             app.UseRouting();
 
+            app.UseAuthentication();    // аутентификация
+
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Exhibit}/{action=Index}/{id?}");
+                    pattern: "{controller=Account}/{action=Login}/{id?}");
             });
         }
     }
