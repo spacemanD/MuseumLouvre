@@ -225,7 +225,7 @@ namespace Museum.Web.Controllers
             {
                 return NotFound();
             }
-            PopulateAssignedCourseData(author);
+            PopulateAssignedCourseDataUpdate(author);
             return View(author);
         }
 
@@ -347,7 +347,25 @@ namespace Museum.Web.Controllers
                 {
                     ExhibitId = course.ExhibitId,
                     Name = course.Name,
-                    CollectionId = instructor.CollectionId
+                    CollectionId = course.CollectionId != null ? instructor.CollectionId : course.CollectionId
+                });
+            }
+            ViewData["Exhibits"] = viewModel;
+        }
+
+        private void PopulateAssignedCourseDataUpdate(Collection instructor)
+        {
+            var allCourses = _serviceAuth.GetAllListAsyncNonAuthors();
+            var instructorCourses = new HashSet<int>(instructor.Exhibits.Select(c => c.ExhibitId));
+            var viewModel = new List<Exhibit>();
+            foreach (var course in allCourses)
+            {
+                viewModel.Add(new Exhibit
+                {
+                    ExhibitId = course.ExhibitId,
+                    Name = course.Name,
+                    CollectionId = course.CollectionId == instructor.CollectionId ? course.CollectionId : null
+
                 });
             }
             ViewData["Exhibits"] = viewModel;

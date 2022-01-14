@@ -6,16 +6,13 @@ namespace DAL.EF.Entities
     public class Exhibit
     {
         public int ExhibitId { get; set; }
+        [Required]
         public string Name { get; set; }
         public int? AuthorId { get; set; }
         public int? CollectionId { get; set; }
-
-        [DataType(DataType.Date)]
         public int? CreationYear { get; set; }
         public string Description { get; set; }
         public ExhibitType Type { get; set; }
-
-        [DataType(DataType.Date)]
         public long? Cost { get; set; }
         public Enums.ArtDirection? Direction { get; set; }
         public string Materials { get; set; }

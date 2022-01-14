@@ -20,10 +20,10 @@ namespace DAL.EF.Entities
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (this.EndTime < this.StartTime)
+            if (this.EndTime <= this.StartTime)
                 yield return new ValidationResult("It ends before start", new[] { nameof(this.EndTime) });
 
-            if (this.StartTime > this.EndTime)
+            if (this.StartTime >= this.EndTime)
                 yield return new ValidationResult("It starts after ends", new[] { nameof(this.StartTime) });
         }
     }

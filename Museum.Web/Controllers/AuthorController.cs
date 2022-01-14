@@ -214,16 +214,17 @@ namespace Museum.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                await Task.Run(() => _service.AddAsync(author));
+                await _service.AddAsync(author);
                 var author1 = _service.GetAllListAsync().FirstOrDefault(x => x.Name == author.Name && x.Surname == author.Surname && x.MiddleName == author.MiddleName);
 
                 if (selectedCourses != null)
                 {
-                    author1 = CreateAuthorExhibits(selectedCourses, author1);
+                    author = UpdateInstructorCourses(selectedCourses, author);
+                    Thread.Sleep(1000);
+                    await _service.UpdateAsync(author);
 
                 }
                 return RedirectToAction(nameof(Index));
-                PopulateAssignedCourseData(author);
             }
             else 
             {
@@ -246,7 +247,7 @@ namespace Museum.Web.Controllers
             {
                 return NotFound();
             }
-            PopulateAssignedCourseData(author);
+            PopulateAssignedCourseDataUpdate(author);
             return View(author);
         }
 
@@ -340,7 +341,6 @@ namespace Museum.Web.Controllers
                     {
                         exhibit.AuthorId = authorToupdate.AuthorId;
                         authorToupdate.Exhibits.Add(exhibit);
-                        //_serviceExhib.UpdateAsync(exhibit);
                     }
                 }
                 else
@@ -395,8 +395,25 @@ namespace Museum.Web.Controllers
                 {
                     ExhibitId = course.ExhibitId,
                     Name = course.Name,
-                    AuthorId = instructor.AuthorId 
-                });
+                    AuthorId = course.AuthorId != null ? instructor.AuthorId : course.AuthorId 
+                }) ;
+            }
+            ViewData["Exhibits"] = viewModel;
+        }
+
+        private void PopulateAssignedCourseDataUpdate(Author instructor)
+        {
+            var allCourses = _serviceExhib.GetAllListAsync();
+            var instructorCourses = new HashSet<int>(instructor.Exhibits.Select(c => c.ExhibitId));
+            var viewModel = new List<Exhibit>();
+            foreach (var course in allCourses)
+            {
+                viewModel.Add(new Exhibit
+                {
+                    ExhibitId = course.ExhibitId,
+                    Name = course.Name,
+                    AuthorId = course.AuthorId == instructor.AuthorId ? course.AuthorId : null
+            });
             }
             ViewData["Exhibits"] = viewModel;
         }

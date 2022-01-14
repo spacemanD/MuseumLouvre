@@ -24,10 +24,10 @@ namespace DAL.EF.Entities
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (this.DeathDate < this.BirthDate)
+            if (this.DeathDate <= this.BirthDate)
                 yield return new ValidationResult("It died before birth", new[] { nameof(this.DeathDate) });
 
-            if (this.BirthDate > this.DeathDate)
+            if (this.BirthDate >= this.DeathDate)
                 yield return new ValidationResult("It born after death", new[] { nameof(this.BirthDate) });
         }
     }
